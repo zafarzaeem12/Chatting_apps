@@ -4,12 +4,14 @@ const app = express();
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const UserRouter = require("./router/Users");
+const ChatRouter = require("./router/Messages");
 
 app.use(express.json());
 app.use(cors());
 
 // routes start here
 app.use("/UserAPI/", UserRouter);
+app.use("/ChatAPI/", ChatRouter);
 
 dotenv.config();
 
