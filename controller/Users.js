@@ -6,9 +6,9 @@ const moment = require("moment");
 const Register_New_User = async (req, res , next) => {
   const typed_Email = req.body.email;
   const typed_phone_number = req.body.phone_number;
-  const userAvator = req?.files?.user_image?.map((data) =>
-          data?.path?.replace(/\\/g, "/")
-        );
+  
+  const userAvator = req?.file?.path?.replace(/\\/g, "/")
+
   try {
     if(!req.body.name){
       return res.send({ message : 'Name is Required' ,status : 400 })
@@ -68,7 +68,7 @@ const Register_New_User = async (req, res , next) => {
         };
        
         const Register = await User.create(newUser)
-  
+ 
          res.send({
            message: `New User ${Register?.name} created Successfully`,
            status: 201,

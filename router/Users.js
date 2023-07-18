@@ -15,7 +15,7 @@ const {
     Logout_Existing_User
 } = require('../controller/Users')
 
-router.post('/create_new_User' , File.upload , Register_New_User);
+router.post('/create_new_User' , File.user , Register_New_User);
 router.post('/login' ,  File.upload ,LoginRegisteredUser);
 router.get('/profile' ,auth ,File.upload ,VerifyRegisteredUser );
 router.put('/update',auth ,File.upload , Update_Existing_User );

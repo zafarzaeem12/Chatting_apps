@@ -33,10 +33,13 @@ const storage = multer.diskStorage({
 const upload = multer({
   storage: storage,
 }).fields([
-  { name: "user_image", maxCount: 8 },
   { name: "category_image", maxCount: 8 },
   { name: "product_image", maxCount: 8 },
   { name: "chat_attachment", maxCount: 8 },
 ]);
 
-module.exports = { upload };
+const user = multer({
+  storage : storage,
+}).single('user_image')
+
+module.exports = { upload , user };

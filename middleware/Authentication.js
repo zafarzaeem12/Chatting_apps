@@ -7,16 +7,16 @@ const User_Token_Authentication = async (req, res, next) => {
   if (!token) {
     return res.send({
       message: "token is expired you are still un-Authorized",
-      status: 400,
+      status: 401,
     });
   } else if (auth?.user_authentication !== token) {
-    return res.send({ message: "token is not matched", status: 400 });
+    return res.send({ message: "token is not matched", status: 401 });
   }
   else if (auth?.is_Blocked === true){
-    return res.send({ message: `Dear ${auth?.name} your account is temporaray blocked`, status: 400 });
+    return res.send({ message: `Dear ${auth?.name} your account is temporaray blocked`, status: 401 });
   }
   else if (auth?.is_profile_deleted === true){
-    return res.send({ message: `Dear ${auth?.name} your account is temporaray Deleted`, status: 400 });
+    return res.send({ message: `Dear ${auth?.name} your account is temporaray Deleted`, status: 401 });
   }
   try {
     const decoded = jwt.verify(token, process.env.SECRET_KEY);

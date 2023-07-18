@@ -15,7 +15,7 @@ const UserSchema = new mongoose.Schema({
         required: true
     },
     user_image: {
-        type: Array,
+        type: String,
          required: true
     },
     phone_number: {
