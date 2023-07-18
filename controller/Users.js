@@ -47,10 +47,21 @@ const Register_New_User = async (req, res , next) => {
            });
 
         },1400)
-       } 
-      
-      else {
-       
+       } else if (req.body.password) {
+        if (!/^[A-Za-z]/.test(req.body.password)) {
+          return res.status(400).send({ message: "Start with Alphabets" });
+        } else if (!/(?=.*[A-Z])/.test(req.body.password)) {
+          return res.status(400).send({ message: "ensures there is at least one uppercase letter" });
+        } else if (!/(?=.*[a-z])/.test(req.body.password)) {
+          return res.status(400).send({ message: "ensures there is at least one lowercase letter" });
+        } else if (!/(?=.*\d)/.test(req.body.password)) {
+          return res.status(400).send({ message: "ensures there is at least one digit" });
+        } else if (!/(?=.*[@$!%*?&])/.test(req.body.password)) {
+          return res.status(400).send({ message: "ensures there is at least one special character from the set [@$!%*?&]" });
+        } else if (!/[A-Za-z\d@$!%*?&]{8,}/.test(req.body.password)) {
+          return res.status(400).send({ message: "matches a minimum of 8 characters" });
+        }
+        
         const db = moment(req.body.dob)
         const newUser = {
           name: req.body.name,
@@ -65,9 +76,8 @@ const Register_New_User = async (req, res , next) => {
           user_device_token: req.body.user_device_token || "asdfghjkl",
           user_device_type: req.body.user_device_type || "android",
         };
-       
         const Register = await User.create(newUser)
- 
+  
          res.send({
            message: `New User ${Register?.name} created Successfully`,
            status: 201,
@@ -75,7 +85,6 @@ const Register_New_User = async (req, res , next) => {
         });
       }
     
-
   } catch (err) {
     res.send({
       message: err.message,
