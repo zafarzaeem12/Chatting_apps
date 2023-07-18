@@ -8,7 +8,6 @@ const Register_New_User = async (req, res , next) => {
   const typed_phone_number = req.body.phone_number;
   
   const userAvator = req?.file?.path?.replace(/\\/g, "/")
-
   try {
     if(!req.body.name){
       return res.send({ message : 'Name is Required' ,status : 400 })
@@ -96,6 +95,7 @@ const LoginRegisteredUser = async (req, res, next) => {
       email: email,
       user_device_token: user_device_token,
       user_device_type: user_device_type,
+      is_verified : true
     });
     const gen_password = CryptoJS.AES.decrypt(
       LoginUser?.password,
@@ -107,7 +107,7 @@ const LoginRegisteredUser = async (req, res, next) => {
       res.send({ message: "Email Not Matched" });
     } else if (password !== original_password) {
       res.send({ message: "Password Not Matched" });
-    } else {
+    } else if(LoginUser.is_verified === true) {
       const token = jwt.sign(
         {
           id: LoginUser._id,

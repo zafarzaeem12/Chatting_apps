@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const auth = require('../middleware/Authentication');
 const File = require('../middleware/ImagesandVideosData');
+const { user } = File
 const { 
     Register_New_User ,
     LoginRegisteredUser , 
@@ -15,7 +16,7 @@ const {
     Logout_Existing_User
 } = require('../controller/Users')
 
-router.post('/create_new_User' , File.user , Register_New_User);
+router.post('/create_new_User'  ,user  , Register_New_User);
 router.post('/login' ,  File.upload ,LoginRegisteredUser);
 router.get('/profile' ,auth ,File.upload ,VerifyRegisteredUser );
 router.put('/update',auth ,File.upload , Update_Existing_User );
