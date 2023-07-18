@@ -3,48 +3,80 @@ const CryptoJS = require("crypto-js");
 const jwt = require("jsonwebtoken");
 const moment = require("moment");
 
-const Register_New_User = async (req, res) => {
+const Register_New_User = async (req, res , next) => {
   const typed_Email = req.body.email;
   const typed_phone_number = req.body.phone_number;
+  const userAvator = req?.files?.user_image?.map((data) =>
+          data?.path?.replace(/\\/g, "/")
+        );
   try {
-    const check_email = await User.findOne({ email: typed_Email });
-
-    if (check_email?.email == typed_Email) {
-      res.send({
-        message: "this email is already exists",
-        status: 400,
-      });
-    } else if (typed_phone_number.length > 11) {
-      res.send({
-        message: "No phone_number more than exceed with 11 digits",
-        status: 400,
-      });
-    } else {
-      const userAvator = req?.files?.user_image?.map((data) =>
-        data?.path?.replace(/\\/g, "/")
-      );
-      const db = moment(req.body.dob, "YYYY-MM-DD").toDate();
-      const newUser = {
-        name: req.body.name,
-        email: typed_Email,
-        password: CryptoJS.AES.encrypt(
-          req.body.password,
-          process.env.SECRET_KEY
-        ).toString(),
-        user_image: userAvator,
-        phone_number: req.body.phone_number,
-        dob: db,
-        user_device_token: req.body.user_device_token || "asdfghjkl",
-        user_device_type: req.body.user_device_type || "android",
-      };
-      const Register = await User.create(newUser)
-
-      res.send({
-        message: `New User ${Register?.name} created Successfully`,
-        status: 201,
-        data: Register,
-      });
+    if(!req.body.name){
+      return res.send({ message : 'Name is Required' ,status : 400 })
     }
+    else if(!typed_Email){
+      return res.status(400).send({ message : 'Email is Required' })
+    }
+    else if(!req.body.password){
+      return res.status(400).send({ message : 'Password is Required'})
+    }
+    else if(!typed_phone_number){
+      return res.status(400).send({ message : 'Phone no is Required' })
+    }
+    else if(!req.body.dob){
+      return res.status(400).send({ message : 'Date of Birth is Required' })
+    }
+    else if(!req.body.user_device_token){
+      return res.status(400).send({ message : 'Device token is Required' })
+    }
+    else if(!req.body.user_device_type){
+      return res.status(400).send({ message : 'Device type is Required'})
+    }
+    else if(!userAvator){
+      return res.status(400).send({ message : 'User Image is Required'})
+    }
+
+      const check_email = await User.findOne({ email: typed_Email });
+        
+      if (typed_phone_number.length > 11) {
+        return res.status(400).send({
+          message: "No phone_number more than exceed with 11 digits",
+        });
+      } else if (check_email?.email == typed_Email) {
+        setTimeout(() => {
+          return res.status(400).send({
+             message: "this email is already exists",
+           });
+
+        },1400)
+       } 
+      
+      else {
+       
+        const db = moment(req.body.dob)
+        const newUser = {
+          name: req.body.name,
+          email: typed_Email,
+          password: CryptoJS.AES.encrypt(
+            req.body.password,
+            process.env.SECRET_KEY
+          ).toString(),
+          user_image: userAvator,
+          phone_number: req.body.phone_number,
+          dob: db.format('YYYY-MM-DD'),
+          user_device_token: req.body.user_device_token || "asdfghjkl",
+          user_device_type: req.body.user_device_type || "android",
+        };
+       
+        const Register = await User.create(newUser)
+  
+         res.send({
+           message: `New User ${Register?.name} created Successfully`,
+           status: 201,
+           data: Register,
+        });
+      }
+    
+
   } catch (err) {
     res.send({
       message: err.message,
