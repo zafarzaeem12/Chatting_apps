@@ -40,7 +40,12 @@ const Register_New_User = async (req, res , next) => {
         return res.status(400).send({
           message: "No phone_number more than exceed with 11 digits",
         });
-      } else if (check_email?.email == typed_Email) {
+      } else if (check_email?.email === typed_Email) {
+         
+        if (!/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/.test(typed_Email)) {
+          return res.status(400).send({ message: "Email is not valid" });
+        }
+          
         setTimeout(() => {
           return res.status(400).send({
              message: "this email is already exists",
