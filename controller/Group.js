@@ -1,5 +1,6 @@
 const Group = require("../model/Group");
-
+var mongoose = require("mongoose");
+const Messages = require("../model/Messages");
 const Create_Group = async (req, res, next) => {
   try {
     const groups = req?.file?.path?.replace(/\\/g, "/");
@@ -81,8 +82,62 @@ const Admin_Approval = async (req, res, next) => {
   })
 };
 
+const Group_Chat_List = async (req,res) => {
+    const group_Id = req.query.group_Id
+    const id = mongoose.Types.ObjectId(group_Id);
+    const data =   [
+        {
+          '$match': {
+            'group_Id': id
+          }
+        }, {
+          '$lookup': {
+            'from': 'users', 
+            'localField': 'sender_Id', 
+            'foreignField': '_id', 
+            'as': 'sender_Data'
+          }
+        }, {
+          '$lookup': {
+            'from': 'users', 
+            'localField': 'reciever_Id', 
+            'foreignField': '_id', 
+            'as': 'reciever_Data'
+          }
+        }, {
+          '$unwind': {
+            'path': '$sender_Data'
+          }
+        }, {
+          '$unwind': {
+            'path': '$reciever_Data'
+          }
+        }, {
+          '$unset': [
+            'sender_Data.dob', 'sender_Data.verification_code', 'sender_Data.is_verified', 'sender_Data.user_is_profile_complete', 'sender_Data.user_is_forgot', 'sender_Data.user_authentication', 'sender_Data.user_device_token', 'sender_Data.user_device_type', 'sender_Data.is_profile_deleted', 'sender_Data.is_notification', 'sender_Data.is_Blocked', 'sender_Data.createdAt', 'sender_Data.updatedAt', 'sender_Data.password'
+          ]
+        }, {
+          '$unset': [
+            'reciever_Data.dob', 'reciever_Data.verification_code', 'reciever_Data.is_verified', 'reciever_Data.user_is_profile_complete', 'reciever_Data.user_is_forgot', 'reciever_Data.user_authentication', 'reciever_Data.user_device_token', 'reciever_Data.user_device_type', 'reciever_Data.is_profile_deleted', 'reciever_Data.is_notification', 'reciever_Data.is_Blocked', 'reciever_Data.createdAt', 'reciever_Data.updatedAt', 'reciever_Data.password'
+          ]
+        }, {
+          '$sort': {
+            'createdAt': -1
+          }
+        }
+      ]
+
+      const Get_group_message = await Messages.aggregate(data);
+
+      res.status(200).send({
+        message : 'Group Fetched',
+        data : Get_group_message
+      })
+}
+
 module.exports = {
   Create_Group,
   Admin_Approval,
-  Requested_Members
+  Requested_Members,
+  Group_Chat_List
 };

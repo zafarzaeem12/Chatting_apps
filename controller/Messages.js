@@ -33,6 +33,7 @@ const Get_Existing_User_Chatlist = async (req, res, next) => {
     const data = [
       {
         $match: {
+          group_Id: { $exists: false },
           sender_Id: id,
         },
       },
