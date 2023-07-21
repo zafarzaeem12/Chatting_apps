@@ -9,7 +9,7 @@ const UserRouter = require("./router/Users");
 const ChatRouter = require("./router/Messages");
 const GroupRouter = require('./router/Group');
 
-const {Getting_Messages , Sending_Messages} = require('./utils/chat')
+const {Getting_Messages , Sending_Messages ,Sending_Group_Chat_Messages ,Getting_Group_Chat_Messages} = require('./utils/chat')
 app.use(express.json());
 app.use(cors());
 
@@ -53,8 +53,6 @@ mongoose
        // entering data into room end here
     })
     
-
-
     socket.on('Sending_Messages',function(object){
   
       const senderID = object.sender_Id
@@ -72,6 +70,36 @@ mongoose
 
       })
     })
+
+    socket.on('Sending_Group_Chat_Messages',((object) => {
+      const Group_ID = object.group_Id
+      const room = `chatting room created in ${Group_ID}`
+      socket.join(room)
+
+      Sending_Group_Chat_Messages(object ,(res) => {
+        io.to(room).emit("group_messages" , {
+          object_type : "group_messages",
+          message : res
+        } )
+      })
+
+
+    }))
+
+    socket.on('Getting_Group_Chat_Messages',((object) => {
+      const Group_ID = object.group_Id
+      const room = `chatting room created in ${Group_ID}`
+      socket.join(room)
+
+      Getting_Group_Chat_Messages(object ,(res) => {
+        io.to(room).emit("group_messages" , {
+          object_type : "group_messages",
+          message : res
+        } )
+      })
+
+
+    }))
 
 
 
