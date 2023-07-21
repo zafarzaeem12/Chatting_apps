@@ -15,6 +15,9 @@ const storage = multer.diskStorage({
     else if (file.fieldname === "user_images") {
       cb(null, "./public/Users/");
     }
+    else if (file.fieldname === "group_image") {
+      cb(null, "./public/Group/");
+    }
   },
   filename: function (req, file, cb) {
     if (file.fieldname === "user_image") {
@@ -30,6 +33,10 @@ const storage = multer.diskStorage({
       const filename = file.originalname.split(" ").join("-");
       cb(null, `${filename}`);
     }else if (file.fieldname === "user_images") {
+      const filename = file.originalname.split(" ").join("-");
+      cb(null, `${filename}`);
+    }
+    else if (file.fieldname === "group_image") {
       const filename = file.originalname.split(" ").join("-");
       cb(null, `${filename}`);
     }
@@ -49,4 +56,8 @@ const user = multer({
   storage : storage,
 }).single('user_image')
 
-module.exports = { upload , user };
+const group = multer({
+  storage : storage,
+}).single('group_image')
+
+module.exports = { upload , user , group };

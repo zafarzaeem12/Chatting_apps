@@ -1,17 +1,23 @@
 const express = require("express");
-const cors = require("cors");
 const app = express();
+const http = require('http').createServer(app)
+const io = require('socket.io')(http)
+const cors = require("cors");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const UserRouter = require("./router/Users");
 const ChatRouter = require("./router/Messages");
+const GroupRouter = require('./router/Group');
 
+const {Getting_Messages , Sending_Messages} = require('./utils/chat')
 app.use(express.json());
 app.use(cors());
 
 // routes start here
 app.use("/UserAPI/", UserRouter);
 app.use("/ChatAPI/", ChatRouter);
+app.use("/GroupAPI/", GroupRouter);
+// routes end here
 
 dotenv.config();
 
@@ -23,6 +29,56 @@ mongoose
   .then((res) => console.log(`Database connected successfully`))
   .catch((err) => console.log(`Database not connected `));
 
-app.listen(port, () => {
+  io.on('connection' , (socket ) => {
+
+
+    socket.on('Getting_Messages',function(object){
+
+      // joining socket to room start here
+      const senderID = object.sender_Id
+      const reciverID = object.reciever_Id
+      const room = `room person1 ${senderID} and person ${reciverID} `
+      socket.join(room)
+      // joining socket to room end here
+
+      Getting_Messages(object,function(response){
+        //  console.log("responseive",response)
+      // entering data into room start herw
+        io.to(room).emit("new_message",{
+            object_type:"getting_message",
+            message:response
+        })
+
+      })
+       // entering data into room end here
+    })
+    
+
+
+    socket.on('Sending_Messages',function(object){
+  
+      const senderID = object.sender_Id
+      const reciverID = object.reciever_Id
+      const room = `room person1 ${senderID} and person ${reciverID} `
+      socket.join(room)
+
+      Sending_Messages(object,function(response){
+        // console.log("response",response)
+
+        io.to(room).emit("new_message" , {
+          object_type : "sending_Messages",
+          message : response
+        } )
+
+      })
+    })
+
+
+
+  });
+
+
+
+  http.listen(port, () => {
   console.log(`Server is running on ${port} Port`);
 });
