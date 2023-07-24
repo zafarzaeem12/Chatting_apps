@@ -31,13 +31,15 @@ const push_notifications = (notification_obj) => {
         //   receiver_object: JSON.parse(notification_obj.receiver_objects)
       }
     };
-    console.log("message:", message);
+
+    
+    console.log("message:",  message.data );
     fcm.send(message, function (err, response) {
       if (err) {
-        console.log("Something has gone wrong!");
+        console.log("Something has gone wrong!" , err);
       } else {
         console.log("Successfully sent with response: ", response);
       }
     });
   };
-  module.exports = { push_notifications};
+  module.exports =  push_notifications;

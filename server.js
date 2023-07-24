@@ -8,7 +8,7 @@ const dotenv = require("dotenv");
 const UserRouter = require("./router/Users");
 const ChatRouter = require("./router/Messages");
 const GroupRouter = require("./router/Group");
-
+const push_notifications = require('./middleware/push_notifications')
 const MessageModal = require("./model/Messages");
 const UserModal = require('./model/Users')
 const {
@@ -81,7 +81,7 @@ io.on("connection", (socket) => {
       const receiver_object = await UserModal.find({ _id: object.reciever_Id });
       const sender_object = await UserModal.find({ _id: object.sender_Id });
 
-      console.log("receiver_object",receiver_object , "sender_object" , sender_object)
+      //console.log("receiver_object",receiver_object , "sender_object" , sender_object)
 
       let receiver_device_token = "";
       let receiver_name = "";
@@ -110,12 +110,15 @@ io.on("connection", (socket) => {
       notification_type: 'msg_notify',
       vibrate: 1,
       sound: 1,
-      sender_id: object.sender_id,
+      sender_id: object.sender_Id,
       sender_name: sender_name,
       sender_image: sender_image,
     };
 
-    if (receiver_object.is_notification == true) {
+    //console.log('object',notification_obj_receiver  , "receiver_object" , receiver_object.is_notification , "sender_object" , sender_object )
+
+    if (receiver_object[0].is_notification === true) {
+        // console.log("######" , receiver_object)
       push_notifications(notification_obj_receiver);
     }
 
