@@ -9,6 +9,8 @@ const UserRouter = require("./router/Users");
 const ChatRouter = require("./router/Messages");
 const GroupRouter = require('./router/Group');
 
+const MessageModal = require('./model/Messages')
+
 const {Getting_Messages , Sending_Messages ,Sending_Group_Chat_Messages ,Getting_Group_Chat_Messages} = require('./utils/chat')
 app.use(express.json());
 app.use(cors());
@@ -28,9 +30,9 @@ mongoose
   .connect(process.env.DATABASE_URL1)
   .then((res) => console.log(`Database connected successfully`))
   .catch((err) => console.log(`Database not connected `));
-
+  const messageHistory = {};
   io.on('connection' , (socket ) => {
-
+   
 
     socket.on('Getting_Messages',function(object){
 
@@ -38,15 +40,25 @@ mongoose
       const senderID = object.sender_Id
       const reciverID = object.reciever_Id
       const room = `room person1 ${senderID} and person ${reciverID} `
-      socket.join(room)
+      socket.join(room);
+
       // joining socket to room end here
 
-      Getting_Messages(object,function(response){
+      Getting_Messages(object, async function(response){
         //  console.log("responseive",response)
       // entering data into room start herw
+      if (!messageHistory[socket.id]) {
+        messageHistory[socket.id] = [];
+      }
+      messageHistory[socket.id].push(response);
+      const lastMessage = getLastMessageFromSocket(socket.id)
+
+     
+      const last = await MessageModal.updateMany({ sender_Id : object.sender_Id , reciever_Id : object.reciever_Id } , {last_conversation : lastMessage.at(-1) } , { new : true} )
+
         io.to(room).emit("new_message",{
             object_type:"getting_message",
-            message:response
+            message:{response , last}
         })
 
       })
@@ -106,6 +118,13 @@ mongoose
   });
 
 
+  function getLastMessageFromSocket(socketId) {
+    if (messageHistory[socketId]) {
+      const messages = messageHistory[socketId];
+      return messages[messages.length - 1];
+    }
+    return null;
+  }
 
   http.listen(port, () => {
   console.log(`Server is running on ${port} Port`);

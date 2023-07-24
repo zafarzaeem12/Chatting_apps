@@ -18,6 +18,9 @@ const MessageSchema = new mongoose.Schema({
     group_Id : {
         type : mongoose.Schema.Types.ObjectId,
         ref : 'Group'
+    },
+    last_conversation : {
+        type : Object
     }
 },
     { timestamps: true }
