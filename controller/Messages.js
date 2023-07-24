@@ -2,13 +2,14 @@ const Message = require("../model/Messages");
 var mongoose = require("mongoose");
 const io = require("socket.io");
 const Create_New_Messages = async (req, res, io) => {
-  const attachments = req?.files?.chat_attachment?.map((data) =>
-    data?.path?.replace(/\\/g, "/")
-  );
+  // const attachments = req?.files?.chat_attachment?.map((data) =>
+  //   data?.path?.replace(/\\/g, "/")
+  // );
+  const arrimages = req.files.images.map((data) => data?.path?.replace(/\\/g, "/"))
   try {
     const messages = {
       message: req.body.message,
-      chat_attachment: attachments,
+      // chat_attachment: attachments,
       sender_Id: req.body.sender_Id,
       reciever_Id: req.body.reciever_Id,
     };
@@ -175,8 +176,26 @@ const Show_Sender_And_Reciever_Messages = async (req, res, next) => {
   }
 };
 
+const Send_Media_Files = async (req,res,next) => {
+  try{
+    const arrimages = req.files.chat_attachment.map((data) => data?.path?.replace(/\\/g, "/"))
+  
+      const data = {
+        chat_attachment : arrimages
+      }
+      res.send({
+        message: "Your attachements",
+        status:200,
+        data : data
+      })
+  }catch(err){
+    console.log(err)
+  }
+}
+
 module.exports = {
   Create_New_Messages,
   Get_Existing_User_Chatlist,
   Show_Sender_And_Reciever_Messages,
+  Send_Media_Files
 };

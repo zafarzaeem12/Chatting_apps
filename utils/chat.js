@@ -15,11 +15,11 @@ const Getting_Messages = async (object , callback) => {
 const Sending_Messages = async (object , callback) => {
     // const attachments = req?.files?.chat_attachment?.map((data) =>
     //   data?.path?.replace(/\\/g, "/")
-    //);
+    // );
     try {
       const messages = {
         message: object.message,
-       // chat_attachment: attachments,
+        chat_attachment: object.chat_attachment,
         sender_Id: object.sender_Id,
         reciever_Id: object.reciever_Id,
       };
